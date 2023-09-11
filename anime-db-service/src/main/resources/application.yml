@@ -1,0 +1,39 @@
+server:
+    port: ${anime-db-service-bootstrap-port:8080} # Default to port 8080 if not provided
+
+spring:
+    datasource:
+        driverClassName: org.postgresql.Driver
+        url: ${DB_URL:jdbc:postgresql://localhost:5432}/anime_db # Default to a local PostgreSQL URL
+        username: ${DB_USERNAME:default-username}
+        password: ${DB_PASSWORD:default-password}
+
+    jackson:
+        deserialization:
+            fail-on-unknown-properties: true
+
+    jpa:
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+                show_sql: true
+
+    kafka:
+        bootstrap-servers: ${kafka-server:localhost:9092} # Default to localhost:9092 if not provided
+        consumer:
+            group-id: ${consumer-group-id:default-consumer-group-id}
+        topic:
+            name:
+                consume-anime-page: ${anime-page-request:default-consume-anime-page}
+                consume-anime-search: ${anime-db-service-search:default-consume-anime-search}
+                consume-api-search-response: ${anime-db-service-api-response:default-consume-api-search-response}
+                produce-api-request: ${anime-db-service-produce-api-request:default-produce-api-request}
+                produce-anime-list: ${anime-db-service-response:default-response}
+                produce-anime-single: ${anime-db-service-single:default-response}
+
+    liquibase:
+        change-log: classpath:db/changelog/changelog.sql
+
+    messages:
+        basename: messages
+        encoding: UTF-8

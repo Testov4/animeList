@@ -1,6 +1,5 @@
 package ms.apirequest;
 
-import ms.apirequest.exception.ApiErrorResponseException;
 import ms.apirequest.model.Anime;
 import ms.apirequest.model.ApiResponse;
 import ms.apirequest.openfeign.AnimeRequestClient;

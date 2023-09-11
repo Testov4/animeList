@@ -1,12 +1,14 @@
-package ms.apirequest.model;
+package ms.animeservice.util.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-public class Image {
+@NoArgsConstructor
+public class ImageDto {
 
     private String imageType;
 
