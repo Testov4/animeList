@@ -13,9 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-
 import java.util.List;
-import java.util.Optional;
 
 public class AnimeServiceImplTest {
 
@@ -30,6 +28,8 @@ public class AnimeServiceImplTest {
 
     static List<Anime> foundList;
 
+    static List<Genre> genres;
+
     static AnimeSearchRequest animeRequest;
 
     @BeforeEach
@@ -39,7 +39,7 @@ public class AnimeServiceImplTest {
 
     @BeforeEach
     void prepareFoundList() {
-        List<Genre> genres= List.of(Genre.builder()
+        genres= List.of(Genre.builder()
                 .malId(1)
                 .name("test_genre1")
                 .build(),
@@ -104,18 +104,68 @@ public class AnimeServiceImplTest {
 
     @Test
     public void findAnimeByParameters_shouldReturnEmptyList_whenWrongGenreIsPassed() {
-        animeRequest.setGenres(List.of(1));
+        animeRequest.setGenres(List.of(300));
         Mockito.when(animeRepository.findByTitleContainingIgnoreCase(animeRequest.getTitle()))
             .thenReturn(foundList);
-        Mockito.when(genreRepository.findById(Mockito.any()))
-            .thenReturn(Optional.of(new Genre()));
+        Mockito.when(genreRepository.findAllById(Mockito.any()))
+            .thenReturn(List.of(new Genre()));
 
 
         List<Anime> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(result, List.of());
+        Assertions.assertEquals(List.of(), result);
     }
+
+    @Test
+    public void findAnimeByParameters_shouldReturnFullList_whenRepositoryReturnsFullListAndOtherParametersAreNotPassed() {
+        Mockito.when(animeRepository.findByTitleContainingIgnoreCase(animeRequest.getTitle()))
+            .thenReturn(foundList);
+        List<Anime> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(result, foundList);
+    }
+
+    @Test
+    public void findAnimeByParameters_shouldReturnListOf2_whenRepositoryReturnFullListAndTestType1IsPassed() {
+        animeRequest.setType("test_type1");
+        Mockito.when(animeRepository.findByTitleContainingIgnoreCase(animeRequest.getTitle()))
+            .thenReturn(foundList);
+        List<Anime> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(result.size(), 2);
+        Assertions.assertEquals(result, List.of(foundList.get(0), foundList.get(1)));
+    }
+
+    @Test
+    public void findAnimeByParameters_shouldReturnListOf2_whenRepositoryReturnFullListWhenTestGenre0IsPassed() {
+        Mockito.when(animeRepository.findByTitleContainingIgnoreCase(animeRequest.getTitle()))
+            .thenReturn(foundList);
+        Mockito.when(genreRepository.findAllById(Mockito.any()))
+            .thenReturn(List.of(genres.get(0)));
+        List<Anime> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(result.size(), 2);
+        Assertions.assertEquals(result, List.of(foundList.get(0), foundList.get(1)));
+    }
+
+    @Test
+    public void findAnimeByParameters_shouldReturnListOf1_whenRepositoryReturnFullListAndWhenTestGenre1AndTestType2ArePassed() {
+        animeRequest.setType("test_type2");
+        Mockito.when(animeRepository.findByTitleContainingIgnoreCase(animeRequest.getTitle()))
+            .thenReturn(foundList);
+        Mockito.when(genreRepository.findAllById(Mockito.any()))
+            .thenReturn(List.of(genres.get(1)));
+        List<Anime> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(result.size(), 1);
+        Assertions.assertEquals(result, List.of(foundList.get(2)));
+    }
+
 
 
 }

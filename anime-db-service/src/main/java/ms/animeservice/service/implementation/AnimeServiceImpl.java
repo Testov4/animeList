@@ -1,5 +1,6 @@
 package ms.animeservice.service.implementation;
 
+import ms.animeservice.exception.AnimeNotFound;
 import ms.animeservice.model.Anime;
 import ms.animeservice.util.AnimeSearchRequest;
 import ms.animeservice.model.Genre;
@@ -63,9 +64,10 @@ public class AnimeServiceImpl implements AnimeService {
 
     @Override
     public Anime findAnimeByIdAndFetchAll(Integer id) {
-        Anime anime = animeRepository.findById(id).orElseThrow();
-        initializeAnime(anime);
-        return anime;
+            Anime anime = animeRepository.findById(id)
+                .orElseThrow(() -> new AnimeNotFound("Anime was not found in the database, anime id: " + id));
+            initializeAnime(anime);
+            return anime;
     }
 
     private void initializeImagesCollection(List<Anime> animeList) {
