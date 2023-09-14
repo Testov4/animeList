@@ -35,10 +35,11 @@ public class Anime {
 
     private String url;
 
-    @OneToMany(mappedBy = "anime")
+    @OneToMany
+    @JoinColumn(name = "anime_id")
     @Cascade(CascadeType.ALL)
     @ToString.Exclude
-    private List<AnimeImage> images;
+    private List<Image> images;
 
     private String title;
 
@@ -48,7 +49,8 @@ public class Anime {
     @Column(name = "title_japanese")
     private String titleJapanese;
 
-    @OneToMany(mappedBy = "anime")
+    @OneToMany
+    @JoinColumn(name = "anime_id")
     @Cascade(CascadeType.ALL)
     @ToString.Exclude
     private List<TitleSynonym> titleSynonyms;

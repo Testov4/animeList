@@ -6,6 +6,7 @@ import ms.animeservice.model.Genre;
 import ms.animeservice.repository.AnimeRepository;
 import ms.animeservice.repository.GenreRepository;
 import ms.animeservice.service.implementation.AnimeServiceImpl;
+import ms.animeservice.util.dto.CompressedAnimeDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,9 +14,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+
 import java.util.List;
 
 public class AnimeServiceImplTest {
+
+    @Spy
+    private ModelMapper modelMapper;
 
     @Mock
     private AnimeRepository animeRepository;
@@ -28,6 +36,8 @@ public class AnimeServiceImplTest {
 
     static List<Anime> foundList;
 
+    static List<CompressedAnimeDto> foundListCompressedDto;
+
     static List<Genre> genres;
 
     static AnimeSearchRequest animeRequest;
@@ -39,6 +49,8 @@ public class AnimeServiceImplTest {
 
     @BeforeEach
     void prepareFoundList() {
+        ModelMapper modelMapper = new ModelMapper();
+
         genres= List.of(Genre.builder()
                 .malId(1)
                 .name("test_genre1")
@@ -71,6 +83,8 @@ public class AnimeServiceImplTest {
                 .genres(List.of(genres.get(1)))
                 .build()
         );
+
+        foundListCompressedDto = modelMapper.map(foundList, new TypeToken<List<CompressedAnimeDto>>(){}.getType());
     }
 
     @BeforeEach
@@ -85,7 +99,7 @@ public class AnimeServiceImplTest {
     public void findAnimeByParameters_shouldReturnEmptyList_whenRepositoryReturnsEmptyList() {
         Mockito.when(animeRepository.findByTitleContainingIgnoreCase(animeRequest.getTitle()))
             .thenReturn(List.of());
-        List<Anime> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
+        List<CompressedAnimeDto> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(result, List.of());
@@ -96,7 +110,7 @@ public class AnimeServiceImplTest {
         Mockito.when(animeRepository.findByTitleContainingIgnoreCase(animeRequest.getTitle()))
             .thenReturn(foundList);
         animeRequest.setType("wrong_type");
-        List<Anime> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
+        List<CompressedAnimeDto> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(result, List.of());
@@ -111,20 +125,20 @@ public class AnimeServiceImplTest {
             .thenReturn(List.of(new Genre()));
 
 
-        List<Anime> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
+        List<CompressedAnimeDto> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(List.of(), result);
+        Assertions.assertEquals(result, List.of());
     }
 
     @Test
     public void findAnimeByParameters_shouldReturnFullList_whenRepositoryReturnsFullListAndOtherParametersAreNotPassed() {
         Mockito.when(animeRepository.findByTitleContainingIgnoreCase(animeRequest.getTitle()))
             .thenReturn(foundList);
-        List<Anime> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
+        List<CompressedAnimeDto> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(result, foundList);
+        Assertions.assertEquals(result, foundListCompressedDto);
     }
 
     @Test
@@ -132,11 +146,11 @@ public class AnimeServiceImplTest {
         animeRequest.setType("test_type1");
         Mockito.when(animeRepository.findByTitleContainingIgnoreCase(animeRequest.getTitle()))
             .thenReturn(foundList);
-        List<Anime> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
+        List<CompressedAnimeDto> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(result.size(), 2);
-        Assertions.assertEquals(result, List.of(foundList.get(0), foundList.get(1)));
+        Assertions.assertEquals(result, List.of(foundListCompressedDto.get(0), foundListCompressedDto.get(1)));
     }
 
     @Test
@@ -145,11 +159,11 @@ public class AnimeServiceImplTest {
             .thenReturn(foundList);
         Mockito.when(genreRepository.findAllById(Mockito.any()))
             .thenReturn(List.of(genres.get(0)));
-        List<Anime> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
+        List<CompressedAnimeDto> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(result.size(), 2);
-        Assertions.assertEquals(result, List.of(foundList.get(0), foundList.get(1)));
+        Assertions.assertEquals(result, List.of(foundListCompressedDto.get(0), foundListCompressedDto.get(1)));
     }
 
     @Test
@@ -159,11 +173,11 @@ public class AnimeServiceImplTest {
             .thenReturn(foundList);
         Mockito.when(genreRepository.findAllById(Mockito.any()))
             .thenReturn(List.of(genres.get(1)));
-        List<Anime> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
+        List<CompressedAnimeDto> result = animeDbService.findAnimeByTitleAndTypeAndGenres(animeRequest);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(result.size(), 1);
-        Assertions.assertEquals(result, List.of(foundList.get(2)));
+        Assertions.assertEquals(result, List.of(foundListCompressedDto.get(2)));
     }
 
 

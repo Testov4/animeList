@@ -9,7 +9,11 @@ import ms.animeservice.repository.GenreRepository;
 import ms.animeservice.service.AnimeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ms.animeservice.util.dto.AnimeDto;
+import ms.animeservice.util.dto.CompressedAnimeDto;
 import org.hibernate.Hibernate;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -25,6 +29,8 @@ public class AnimeServiceImpl implements AnimeService {
 
     private final GenreRepository genreRepository;
 
+    private final ModelMapper modelMapper;
+
     @Override
     public List<Anime> findAnimeListByIds(List<Integer> ids) {
         return animeRepository.findAllById(ids);
@@ -32,7 +38,7 @@ public class AnimeServiceImpl implements AnimeService {
 
     @Override
     @Transactional
-    public List<Anime> findAnimeByTitleAndTypeAndGenres(AnimeSearchRequest request) {
+    public List<CompressedAnimeDto> findAnimeByTitleAndTypeAndGenres(AnimeSearchRequest request) {
         List<Genre> genres = genreRepository.findAllById(request.getGenres());
 
         List<Anime> animeList = animeRepository.findByTitleContainingIgnoreCase(request.getTitle())
@@ -44,30 +50,36 @@ public class AnimeServiceImpl implements AnimeService {
             .collect(Collectors.toList());
 
         initializeImagesCollection(animeList);
-        return animeList;
+        return modelMapper.map(animeList, new TypeToken<List<CompressedAnimeDto>>(){}.getType());
     }
 
     @Override
     @Transactional
-    public void saveNotPresentAnimeList(List<Anime> animeList) {
-        List<Anime> foundAnimeList = animeRepository.findAllById(makeSetOfIdFromAnimeList(animeList));
+    public void saveNotPresentAnimeList(List<AnimeDto> animeDtoList) {
+        Set<Integer> foundAnimeIdSet = animeRepository.findAllById(animeDtoList
+                .stream()
+                .map(AnimeDto::getMalId)
+                .collect(Collectors.toSet())
+            )
+            .stream()
+            .map(Anime::getMalId)
+            .collect(Collectors.toSet());
 
-        Set<Integer> foundAnimeIdSet = makeSetOfIdFromAnimeList(foundAnimeList);
-
-        List<Anime> notFoundAnime = animeList
+        List<Anime> notFoundAnime = animeDtoList
             .stream()
             .filter(anime -> !foundAnimeIdSet.contains(anime.getMalId()))
+            .map(animeDto -> modelMapper.map(animeDto, Anime.class))
             .collect(Collectors.toList());
 
         animeRepository.saveAll(notFoundAnime);
     }
 
     @Override
-    public Anime findAnimeByIdAndFetchAll(Integer id) {
+    public AnimeDto findAnimeByIdAndFetchAll(Integer id) {
             Anime anime = animeRepository.findById(id)
                 .orElseThrow(() -> new AnimeNotFound("Anime was not found in the database, anime id: " + id));
             initializeAnime(anime);
-            return anime;
+            return modelMapper.map(anime, AnimeDto.class);
     }
 
     private void initializeImagesCollection(List<Anime> animeList) {
@@ -81,9 +93,4 @@ public class AnimeServiceImpl implements AnimeService {
         Hibernate.initialize(anime.getStudios());
     }
 
-    private Set<Integer> makeSetOfIdFromAnimeList(List<Anime> animeList) {
-        return animeList.stream()
-            .map(Anime::getMalId)
-            .collect(Collectors.toSet());
-    }
 }

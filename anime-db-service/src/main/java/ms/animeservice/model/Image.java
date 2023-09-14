@@ -14,7 +14,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "anime_image")
 @Data
-public class AnimeImage {
+public class Image {
 
     @Id
     @Column(name = "image_id")
