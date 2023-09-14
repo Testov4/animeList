@@ -1,6 +1,9 @@
 package ms.apirequest.model;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,12 +36,18 @@ public class Anime {
     @JsonProperty("title_synonyms")
     @JsonDeserialize(using = SynonymsDeserializer.class)
     private List<TitleSynonym> titleSynonyms;
-    private String type;
-    private Integer episodes;
-    private String airing;
-    private String status;
-    private String duration;
-    private Integer year;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String type = "unknown";
+    @JsonSetter(nulls = Nulls.SKIP)
+    private Integer episodes = 0;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String airing = "unknown";
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String status = "unknown";
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String duration = "unknown";
+    @JsonSetter(nulls = Nulls.SKIP)
+    private Integer year = 0;
     private List<Genre> genres;
     private List<Studio> studios;
 
