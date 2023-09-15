@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ms.animeservice.util.SingleAnimeRequest;
 import ms.animeservice.util.dto.AnimeDto;
 import ms.animeservice.exception.WrongRequestFormatException;
 import ms.animeservice.util.AnimeSearchRequest;
@@ -42,9 +43,9 @@ public class DeserializerServiceImpl implements DeserializerService {
     }
 
     @Override
-    public Integer deserializeAnimeId(String json) {
+    public SingleAnimeRequest deserializeAnimeId(String json) {
         try {
-            return mapper.readValue(json, Integer.class);
+            return mapper.readValue(json, SingleAnimeRequest.class);
         } catch (JsonProcessingException e) {
             log.error("Failed using mapper to read JSON: {}", e.getMessage());
             log.debug("JSON that caused the exception: {}", json);

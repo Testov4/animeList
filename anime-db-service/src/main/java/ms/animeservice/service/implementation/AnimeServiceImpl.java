@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ms.animeservice.util.dto.AnimeDto;
 import ms.animeservice.util.dto.CompressedAnimeDto;
-import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,7 @@ public class AnimeServiceImpl implements AnimeService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<CompressedAnimeDto> findAnimeByTitleAndTypeAndGenres(AnimeSearchRequest request) {
         List<Genre> genres = genreRepository.findAllById(request.getGenres());
 
@@ -49,7 +48,6 @@ public class AnimeServiceImpl implements AnimeService {
                 .anyMatch(genres::contains))
             .collect(Collectors.toList());
 
-        initializeImagesCollection(animeList);
         return modelMapper.map(animeList, new TypeToken<List<CompressedAnimeDto>>(){}.getType());
     }
 
@@ -75,22 +73,11 @@ public class AnimeServiceImpl implements AnimeService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AnimeDto findAnimeByIdAndFetchAll(Integer id) {
             Anime anime = animeRepository.findById(id)
                 .orElseThrow(() -> new AnimeNotFound("Anime was not found in the database, anime id: " + id));
-            initializeAnime(anime);
             return modelMapper.map(anime, AnimeDto.class);
-    }
-
-    private void initializeImagesCollection(List<Anime> animeList) {
-        animeList.forEach(anime -> Hibernate.initialize(anime.getImages()));
-    }
-
-    private void initializeAnime(Anime anime) {
-        Hibernate.initialize(anime.getImages());
-        Hibernate.initialize(anime.getGenres());
-        Hibernate.initialize(anime.getTitleSynonyms());
-        Hibernate.initialize(anime.getStudios());
     }
 
 }
