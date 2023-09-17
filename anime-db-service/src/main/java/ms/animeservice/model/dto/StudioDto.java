@@ -1,4 +1,4 @@
-package ms.animeservice.util.dto;
+package ms.animeservice.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

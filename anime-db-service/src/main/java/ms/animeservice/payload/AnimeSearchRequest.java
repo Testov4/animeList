@@ -1,4 +1,4 @@
-package ms.animeservice.util;
+package ms.animeservice.payload;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

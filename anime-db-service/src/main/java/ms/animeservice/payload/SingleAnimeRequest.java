@@ -1,4 +1,4 @@
-package ms.animeservice.util;
+package ms.animeservice.payload;
 
 import lombok.Data;
 

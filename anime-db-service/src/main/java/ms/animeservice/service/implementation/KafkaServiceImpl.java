@@ -2,10 +2,10 @@ package ms.animeservice.service.implementation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ms.animeservice.util.dto.AnimeDto;
-import ms.animeservice.util.AnimeSearchRequest;
+import ms.animeservice.model.dto.AnimeDto;
+import ms.animeservice.payload.AnimeSearchRequest;
 import ms.animeservice.service.KafkaService;
-import ms.animeservice.util.dto.CompressedAnimeDto;
+import ms.animeservice.model.dto.PartialAnimeDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -23,7 +23,10 @@ public class KafkaServiceImpl implements KafkaService {
     private String apiRequestTopicName;
 
     @Value("${spring.kafka.topic.name.produce-anime-list}")
-    private String animeListTopicName;
+    private String foundAnimeListTopicName;
+
+    @Value("${spring.kafka.topic.name.produce-anime-user-list}")
+    private String userAnimeListTopicName;
 
     @Value("${spring.kafka.topic.name.produce-anime-single}")
     private String singleAnimeTopicName;
@@ -42,10 +45,10 @@ public class KafkaServiceImpl implements KafkaService {
     }
 
     @Override
-    public void sendCompressedAnimeList(List<CompressedAnimeDto> data) {
-        Message<List<CompressedAnimeDto>> message = MessageBuilder
+    public void sendFoundAnimeList(List<PartialAnimeDto> data) {
+        Message<List<PartialAnimeDto>> message = MessageBuilder
             .withPayload(data)
-            .setHeader(KafkaHeaders.TOPIC, animeListTopicName)
+            .setHeader(KafkaHeaders.TOPIC, foundAnimeListTopicName)
             .build();
 
         log.info("Sending message: {}", data);
@@ -57,6 +60,17 @@ public class KafkaServiceImpl implements KafkaService {
         Message<AnimeDto> message = MessageBuilder
             .withPayload(data)
             .setHeader(KafkaHeaders.TOPIC, singleAnimeTopicName)
+            .build();
+
+        log.info("Sending message: {}", data);
+        kafkaTemplate.send(message);
+    }
+
+    @Override
+    public void sendUserAnimeList(List<PartialAnimeDto> data) {
+        Message<List<PartialAnimeDto>> message = MessageBuilder
+            .withPayload(data)
+            .setHeader(KafkaHeaders.TOPIC, userAnimeListTopicName)
             .build();
 
         log.info("Sending message: {}", data);

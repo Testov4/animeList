@@ -26,11 +26,12 @@ spring:
             name:
                 consume-anime-page: ${anime-page-request:default-consume-anime-page}
                 consume-anime-search: ${anime-db-service-search:default-consume-anime-search}
+                consume-anime-list-request: ${anime-db-service-user-list:default-consume-anime-user-list}
                 consume-api-search-response: ${anime-db-service-api-response:default-consume-api-search-response}
                 produce-api-request: ${anime-db-service-produce-api-request:default-produce-api-request}
-                produce-anime-list: ${anime-db-service-response:default-response}
-                produce-anime-single: ${anime-db-service-single:default-response}
-
+                produce-anime-list: ${anime-db-service-response:default-response-anime-list}
+                produce-anime-single: ${anime-db-service-single:default-response-single-anime}
+                produce-anime-user-list: ${anime-db-service-user-list:default-response-user-list}
     liquibase:
         change-log: classpath:db/changelog/changelog.sql
 

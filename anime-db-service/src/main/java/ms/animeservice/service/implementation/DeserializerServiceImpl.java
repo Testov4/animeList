@@ -1,16 +1,18 @@
 package ms.animeservice.service.implementation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ms.animeservice.util.SingleAnimeRequest;
-import ms.animeservice.util.dto.AnimeDto;
+import ms.animeservice.payload.AnimeListRequest;
+import ms.animeservice.payload.SingleAnimeRequest;
+import ms.animeservice.model.dto.AnimeDto;
 import ms.animeservice.exception.WrongRequestFormatException;
-import ms.animeservice.util.AnimeSearchRequest;
+import ms.animeservice.payload.AnimeSearchRequest;
 import ms.animeservice.service.DeserializerService;
 import org.springframework.stereotype.Service;
-import java.util.Arrays;
+
 import java.util.List;
 
 @Service
@@ -34,7 +36,7 @@ public class DeserializerServiceImpl implements DeserializerService {
     @Override
     public List<AnimeDto> deserializeAnimeList(String json) {
         try {
-            return Arrays.asList(mapper.readValue(json, AnimeDto[].class));
+            return mapper.readValue(json, new TypeReference<List<AnimeDto>>() {});
         } catch (JsonProcessingException e) {
             log.error("Failed using mapper to read JSON: {}", e.getMessage());
             log.debug("JSON that caused the exception: {}", json);
@@ -46,6 +48,17 @@ public class DeserializerServiceImpl implements DeserializerService {
     public SingleAnimeRequest deserializeAnimeId(String json) {
         try {
             return mapper.readValue(json, SingleAnimeRequest.class);
+        } catch (JsonProcessingException e) {
+            log.error("Failed using mapper to read JSON: {}", e.getMessage());
+            log.debug("JSON that caused the exception: {}", json);
+            throw new WrongRequestFormatException("Failed to deserialize JSON: ", e);
+        }
+    }
+
+    @Override
+    public AnimeListRequest deserializeAnimeIdList(String json) {
+        try {
+            return mapper.readValue(json, AnimeListRequest.class);
         } catch (JsonProcessingException e) {
             log.error("Failed using mapper to read JSON: {}", e.getMessage());
             log.debug("JSON that caused the exception: {}", json);

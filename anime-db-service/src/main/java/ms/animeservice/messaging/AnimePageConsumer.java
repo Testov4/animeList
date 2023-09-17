@@ -1,12 +1,14 @@
-package ms.animeservice.consumer;
+package ms.animeservice.messaging;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ms.animeservice.model.Anime;
 import ms.animeservice.service.AnimeService;
 import ms.animeservice.service.DeserializerService;
 import ms.animeservice.service.KafkaService;
-import ms.animeservice.util.SingleAnimeRequest;
-import ms.animeservice.util.dto.AnimeDto;
+import ms.animeservice.payload.SingleAnimeRequest;
+import ms.animeservice.model.dto.AnimeDto;
+import org.modelmapper.ModelMapper;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -23,12 +25,16 @@ public class AnimePageConsumer {
 
     private final KafkaService kafkaService;
 
+    private final ModelMapper modelMapper;
+
     @KafkaHandler
-    void listenAnimeSearchRequest(String data) {
+    void listenAnimePageRequest(String data) {
         SingleAnimeRequest animeRequest = deserializerService.deserializeAnimeId(data);
         log.info("Data deserialized: {}", animeRequest);
-        AnimeDto animeDto = animeService.findAnimeByIdAndFetchAll(animeRequest.getId());
-        log.info("got Anime entity from DB: {}", animeDto);
+        Anime anime = animeService.findAnimeByIdAndFetchAll(animeRequest.getId());
+        log.info("got Anime from DB: {}", anime);
+        AnimeDto animeDto = modelMapper.map(anime, AnimeDto.class);
+        log.info("Entity converted to DTO: {}", animeDto);
         kafkaService.sendFullSingleAnime(animeDto);
         log.info("Message sent: {}", animeDto);
     }

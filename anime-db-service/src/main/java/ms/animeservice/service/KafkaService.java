@@ -1,14 +1,16 @@
 package ms.animeservice.service;
 
-import ms.animeservice.util.AnimeSearchRequest;
-import ms.animeservice.util.dto.AnimeDto;
-import ms.animeservice.util.dto.CompressedAnimeDto;
+import ms.animeservice.payload.AnimeSearchRequest;
+import ms.animeservice.model.dto.AnimeDto;
+import ms.animeservice.model.dto.PartialAnimeDto;
 import java.util.List;
 
 public interface KafkaService {
     void sendSearchRequest(AnimeSearchRequest data);
 
-    void sendCompressedAnimeList(List<CompressedAnimeDto> data);
+    void sendFoundAnimeList(List<PartialAnimeDto> data);
 
     void sendFullSingleAnime(AnimeDto data);
+
+    void sendUserAnimeList(List<PartialAnimeDto> data);
 }

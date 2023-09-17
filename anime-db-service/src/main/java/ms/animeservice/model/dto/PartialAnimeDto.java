@@ -1,4 +1,4 @@
-package ms.animeservice.util.dto;
+package ms.animeservice.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CompressedAnimeDto {
+public class PartialAnimeDto {
     @JsonProperty("mal_id")
     private Integer malId;
     private String url;
