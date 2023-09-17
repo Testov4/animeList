@@ -3,7 +3,7 @@ package ms.animeservice.service.implementation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ms.animeservice.model.dto.AnimeDto;
-import ms.animeservice.payload.AnimeSearchRequest;
+import ms.animeservice.payload.AnimeSearchPayload;
 import ms.animeservice.service.KafkaService;
 import ms.animeservice.model.dto.PartialAnimeDto;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,8 +34,8 @@ public class KafkaServiceImpl implements KafkaService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
-    public void sendSearchRequest(AnimeSearchRequest data) {
-        Message<AnimeSearchRequest> message = MessageBuilder
+    public void sendSearchRequest(AnimeSearchPayload data) {
+        Message<AnimeSearchPayload> message = MessageBuilder
             .withPayload(data)
             .setHeader(KafkaHeaders.TOPIC, apiRequestTopicName)
             .build();

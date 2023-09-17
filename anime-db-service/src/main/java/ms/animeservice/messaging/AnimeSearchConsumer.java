@@ -3,7 +3,7 @@ package ms.animeservice.messaging;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ms.animeservice.model.Anime;
-import ms.animeservice.payload.AnimeSearchRequest;
+import ms.animeservice.payload.AnimeSearchPayload;
 import ms.animeservice.service.AnimeService;
 import ms.animeservice.service.DeserializerService;
 import ms.animeservice.service.KafkaService;
@@ -31,7 +31,7 @@ public class AnimeSearchConsumer {
 
     @KafkaHandler
     void listenAnimeSearchRequest(String data) {
-        AnimeSearchRequest request = deserializerService.deserializeAnimeSearchRequest(data);
+        AnimeSearchPayload request = deserializerService.deserializeAnimeSearchRequest(data);
         log.info("Data deserialized: {}", request);
         List<Anime> animeList= animeService.findAnimeByTitleAndTypeAndGenres(request);
         log.info("List from DB received: {}", animeList);

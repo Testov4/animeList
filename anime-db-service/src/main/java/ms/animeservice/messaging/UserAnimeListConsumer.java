@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ms.animeservice.model.Anime;
 import ms.animeservice.model.dto.PartialAnimeDto;
-import ms.animeservice.payload.AnimeListRequest;
+import ms.animeservice.payload.AnimeListPayload;
 import ms.animeservice.service.AnimeService;
 import ms.animeservice.service.DeserializerService;
 import ms.animeservice.service.KafkaService;
@@ -32,10 +32,9 @@ public class UserAnimeListConsumer {
 
     @KafkaHandler
     void listenAnimeSearchRequest(String data) {
-        log.info("Got govnyak: {}", data);
-        AnimeListRequest animeListRequest = deserializerService.deserializeAnimeIdList(data);
-        log.info("Data deserialized: {}", animeListRequest);
-        List<Anime> animeList = animeService.findAnimeListByIds(animeListRequest.getIds());
+        AnimeListPayload animeListPayload = deserializerService.deserializeAnimeIdList(data);
+        log.info("Data deserialized: {}", animeListPayload);
+        List<Anime> animeList = animeService.findAnimeListByIds(animeListPayload.getIds());
         log.info("got Anime from DB: {}", animeList);
         List<PartialAnimeDto> animeDtoList =
             modelMapper.map(animeList, new TypeToken<List<PartialAnimeDto>>(){}.getType());

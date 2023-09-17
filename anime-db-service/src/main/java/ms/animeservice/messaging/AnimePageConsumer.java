@@ -6,7 +6,7 @@ import ms.animeservice.model.Anime;
 import ms.animeservice.service.AnimeService;
 import ms.animeservice.service.DeserializerService;
 import ms.animeservice.service.KafkaService;
-import ms.animeservice.payload.SingleAnimeRequest;
+import ms.animeservice.payload.SingleAnimePayload;
 import ms.animeservice.model.dto.AnimeDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.kafka.annotation.KafkaHandler;
@@ -29,7 +29,7 @@ public class AnimePageConsumer {
 
     @KafkaHandler
     void listenAnimePageRequest(String data) {
-        SingleAnimeRequest animeRequest = deserializerService.deserializeAnimeId(data);
+        SingleAnimePayload animeRequest = deserializerService.deserializeAnimeId(data);
         log.info("Data deserialized: {}", animeRequest);
         Anime anime = animeService.findAnimeByIdAndFetchAll(animeRequest.getId());
         log.info("got Anime from DB: {}", anime);

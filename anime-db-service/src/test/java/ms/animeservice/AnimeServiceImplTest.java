@@ -1,7 +1,7 @@
 package ms.animeservice;
 
 import ms.animeservice.model.Anime;
-import ms.animeservice.payload.AnimeSearchRequest;
+import ms.animeservice.payload.AnimeSearchPayload;
 import ms.animeservice.model.Genre;
 import ms.animeservice.repository.AnimeRepository;
 import ms.animeservice.repository.GenreRepository;
@@ -40,7 +40,7 @@ public class AnimeServiceImplTest {
 
     static List<Genre> genres;
 
-    static AnimeSearchRequest animeRequest;
+    static AnimeSearchPayload animeRequest;
 
     @BeforeEach
     void setUp() {
@@ -89,7 +89,7 @@ public class AnimeServiceImplTest {
 
     @BeforeEach
     public void prepareAnimeSearchRequest() {
-        animeRequest = new AnimeSearchRequest();
+        animeRequest = new AnimeSearchPayload();
         animeRequest.setGenres(List.of());
         animeRequest.setType("");
         animeRequest.setTitle("test_title");

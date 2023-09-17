@@ -2,7 +2,7 @@ package ms.animeservice.service.implementation;
 
 import ms.animeservice.exception.AnimeNotFound;
 import ms.animeservice.model.Anime;
-import ms.animeservice.payload.AnimeSearchRequest;
+import ms.animeservice.payload.AnimeSearchPayload;
 import ms.animeservice.model.Genre;
 import ms.animeservice.repository.AnimeRepository;
 import ms.animeservice.repository.GenreRepository;
@@ -24,8 +24,6 @@ public class AnimeServiceImpl implements AnimeService {
 
     private final GenreRepository genreRepository;
 
-    private final ModelMapper modelMapper;
-
     @Override
     @Transactional(readOnly = true)
     public List<Anime> findAnimeListByIds(List<Integer> ids) {
@@ -34,7 +32,7 @@ public class AnimeServiceImpl implements AnimeService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Anime> findAnimeByTitleAndTypeAndGenres(AnimeSearchRequest request) {
+    public List<Anime> findAnimeByTitleAndTypeAndGenres(AnimeSearchPayload request) {
         List<Genre> genres = genreRepository.findAllById(request.getGenres());
 
         List<Anime> animeList = animeRepository.findByTitleContains(request.getTitle())
