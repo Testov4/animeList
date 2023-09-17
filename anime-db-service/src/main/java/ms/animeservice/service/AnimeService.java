@@ -1,9 +1,7 @@
 package ms.animeservice.service;
 
 import ms.animeservice.model.Anime;
-import ms.animeservice.util.AnimeSearchRequest;
-import ms.animeservice.util.dto.AnimeDto;
-import ms.animeservice.util.dto.CompressedAnimeDto;
+import ms.animeservice.payload.AnimeSearchPayload;
 
 import java.util.List;
 
@@ -11,9 +9,9 @@ public interface AnimeService {
 
     List<Anime> findAnimeListByIds(List<Integer> ids);
 
-    List<CompressedAnimeDto> findAnimeByTitleAndTypeAndGenres(AnimeSearchRequest animeSearchRequest);
+    List<Anime> findAnimeByTitleAndTypeAndGenres(AnimeSearchPayload animeSearchPayload);
 
-    void saveNotPresentAnimeList(List<AnimeDto> animeDtoList);
+    void saveNotPresentAnimeList(List<Anime> animeList);
 
-    AnimeDto findAnimeByIdAndFetchAll(Integer id);
+    Anime findAnimeByIdAndFetchAll(Integer id);
 }

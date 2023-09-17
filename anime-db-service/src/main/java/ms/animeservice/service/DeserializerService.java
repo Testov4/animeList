@@ -1,15 +1,18 @@
 package ms.animeservice.service;
 
-import ms.animeservice.util.SingleAnimeRequest;
-import ms.animeservice.util.dto.AnimeDto;
-import ms.animeservice.util.AnimeSearchRequest;
+import ms.animeservice.payload.AnimeListPayload;
+import ms.animeservice.payload.SingleAnimePayload;
+import ms.animeservice.model.dto.AnimeDto;
+import ms.animeservice.payload.AnimeSearchPayload;
 import java.util.List;
 
 public interface DeserializerService {
-    AnimeSearchRequest deserializeAnimeSearchRequest(String json);
+    AnimeSearchPayload deserializeAnimeSearchRequest(String json);
 
     List<AnimeDto> deserializeAnimeList(String json);
 
-    SingleAnimeRequest deserializeAnimeId(String json);
+    SingleAnimePayload deserializeAnimeId(String json);
+
+    AnimeListPayload deserializeAnimeIdList(String json);
 
 }

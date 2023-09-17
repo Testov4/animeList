@@ -63,7 +63,7 @@ public class Anime {
     private Integer year;
 
     @ManyToMany
-    @Cascade(CascadeType.MERGE)
+    @Cascade({CascadeType.MERGE, CascadeType.PERSIST})
     @ToString.Exclude
     @JoinTable(
         name = "anime_genre",
@@ -72,7 +72,7 @@ public class Anime {
     private List<Genre> genres;
 
     @ManyToMany
-    @Cascade(CascadeType.MERGE)
+    @Cascade({CascadeType.MERGE, CascadeType.PERSIST})
     @ToString.Exclude
     @JoinTable(
         name = "anime_studio",

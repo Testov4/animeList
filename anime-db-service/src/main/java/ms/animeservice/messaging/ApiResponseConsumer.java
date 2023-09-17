@@ -1,10 +1,11 @@
-package ms.animeservice.consumer;
+package ms.animeservice.messaging;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ms.animeservice.util.dto.CompressedAnimeDto;
+import ms.animeservice.model.Anime;
+import ms.animeservice.model.dto.PartialAnimeDto;
 import org.modelmapper.ModelMapper;
-import ms.animeservice.util.dto.AnimeDto;
+import ms.animeservice.model.dto.AnimeDto;
 import ms.animeservice.service.AnimeService;
 import ms.animeservice.service.DeserializerService;
 import ms.animeservice.service.KafkaService;
@@ -12,6 +13,7 @@ import org.modelmapper.TypeToken;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
 
 @Component
@@ -29,14 +31,16 @@ public class ApiResponseConsumer {
     private final ModelMapper modelMapper;
 
     @KafkaHandler
-    void listenAnimeSearchRequest(String data) {
+    void listenApiResponse(String data) {
         List<AnimeDto> animeDtoList = deserializerService.deserializeAnimeList(data);
         log.info("Data deserialized: {}", animeDtoList);
-        animeService.saveNotPresentAnimeList(animeDtoList);
+        List<Anime> animeList =
+            modelMapper.map(animeDtoList, new TypeToken<List<Anime>>(){}.getType());
+        animeService.saveNotPresentAnimeList(animeList);
         log.info("List inserted into DB");
-        List<CompressedAnimeDto> compressedAnimeDtos =
-            modelMapper.map(animeDtoList, new TypeToken<List<CompressedAnimeDto>>(){}.getType());
-        kafkaService.sendCompressedAnimeList(compressedAnimeDtos);
+        List<PartialAnimeDto> partialAnimeDtos =
+            modelMapper.map(animeDtoList, new TypeToken<List<PartialAnimeDto>>(){}.getType());
+        kafkaService.sendFoundAnimeList(partialAnimeDtos);
         log.info("Message sent: {}", animeDtoList);
     }
 

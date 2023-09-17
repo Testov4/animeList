@@ -1,12 +1,15 @@
-package ms.animeservice.consumer;
+package ms.animeservice.messaging;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ms.animeservice.util.AnimeSearchRequest;
+import ms.animeservice.model.Anime;
+import ms.animeservice.payload.AnimeSearchPayload;
 import ms.animeservice.service.AnimeService;
 import ms.animeservice.service.DeserializerService;
 import ms.animeservice.service.KafkaService;
-import ms.animeservice.util.dto.CompressedAnimeDto;
+import ms.animeservice.model.dto.PartialAnimeDto;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -24,13 +27,18 @@ public class AnimeSearchConsumer {
 
     private final KafkaService kafkaService;
 
+    private final ModelMapper modelMapper;
+
     @KafkaHandler
     void listenAnimeSearchRequest(String data) {
-        AnimeSearchRequest request = deserializerService.deserializeAnimeSearchRequest(data);
+        AnimeSearchPayload request = deserializerService.deserializeAnimeSearchRequest(data);
         log.info("Data deserialized: {}", request);
-        List<CompressedAnimeDto> animeDtoList = animeService.findAnimeByTitleAndTypeAndGenres(request);
-        log.info("List from DB received: {}", animeDtoList);
-        kafkaService.sendCompressedAnimeList(animeDtoList);
+        List<Anime> animeList= animeService.findAnimeByTitleAndTypeAndGenres(request);
+        log.info("List from DB received: {}", animeList);
+        List<PartialAnimeDto> animeDtoList =
+            modelMapper.map(animeList, new TypeToken<List<PartialAnimeDto>>(){}.getType());
+        log.info("Entity List converted to DTO: {}", animeDtoList);
+        kafkaService.sendFoundAnimeList(animeDtoList);
         log.info("Message sent: {}", animeDtoList);
         kafkaService.sendSearchRequest(request);
         log.info("Message sent: {}", request);

@@ -2,21 +2,17 @@ package ms.animeservice.service.implementation;
 
 import ms.animeservice.exception.AnimeNotFound;
 import ms.animeservice.model.Anime;
-import ms.animeservice.util.AnimeSearchRequest;
+import ms.animeservice.payload.AnimeSearchPayload;
 import ms.animeservice.model.Genre;
 import ms.animeservice.repository.AnimeRepository;
 import ms.animeservice.repository.GenreRepository;
 import ms.animeservice.service.AnimeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ms.animeservice.util.dto.AnimeDto;
-import ms.animeservice.util.dto.CompressedAnimeDto;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,45 +24,36 @@ public class AnimeServiceImpl implements AnimeService {
 
     private final GenreRepository genreRepository;
 
-    private final ModelMapper modelMapper;
-
     @Override
+    @Transactional(readOnly = true)
     public List<Anime> findAnimeListByIds(List<Integer> ids) {
-        return animeRepository.findAllById(ids);
+        return animeRepository.findAllByMalId(ids);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CompressedAnimeDto> findAnimeByTitleAndTypeAndGenres(AnimeSearchRequest request) {
+    public List<Anime> findAnimeByTitleAndTypeAndGenres(AnimeSearchPayload request) {
         List<Genre> genres = genreRepository.findAllById(request.getGenres());
 
-        List<Anime> animeList = animeRepository.findByTitleContainingIgnoreCase(request.getTitle())
+        List<Anime> animeList = animeRepository.findByTitleContains(request.getTitle())
             .stream()
-            .filter(anime -> anime.getType().contains(request.getType()))
+            .filter(anime -> request.getType() == null || anime.getType().contains(request.getType()))
             .filter(anime -> genres.isEmpty() || anime.getGenres()
                 .stream()
                 .anyMatch(genres::contains))
             .collect(Collectors.toList());
 
-        return modelMapper.map(animeList, new TypeToken<List<CompressedAnimeDto>>(){}.getType());
+        return animeList;
     }
 
     @Override
     @Transactional
-    public void saveNotPresentAnimeList(List<AnimeDto> animeDtoList) {
-        Set<Integer> foundAnimeIdSet = animeRepository.findAllById(animeDtoList
-                .stream()
-                .map(AnimeDto::getMalId)
-                .collect(Collectors.toSet())
-            )
-            .stream()
-            .map(Anime::getMalId)
-            .collect(Collectors.toSet());
+    public void saveNotPresentAnimeList(List<Anime> animeList) {
+        List<Integer> presentAnimeIds = animeRepository.findPresentAnimeList(animeList);
 
-        List<Anime> notFoundAnime = animeDtoList
+        List<Anime> notFoundAnime = animeList
             .stream()
-            .filter(anime -> !foundAnimeIdSet.contains(anime.getMalId()))
-            .map(animeDto -> modelMapper.map(animeDto, Anime.class))
+            .filter(anime -> !presentAnimeIds.contains(anime.getMalId()))
             .collect(Collectors.toList());
 
         animeRepository.saveAll(notFoundAnime);
@@ -74,10 +61,9 @@ public class AnimeServiceImpl implements AnimeService {
 
     @Override
     @Transactional(readOnly = true)
-    public AnimeDto findAnimeByIdAndFetchAll(Integer id) {
-            Anime anime = animeRepository.findById(id)
-                .orElseThrow(() -> new AnimeNotFound("Anime was not found in the database, anime id: " + id));
-            return modelMapper.map(anime, AnimeDto.class);
+    public Anime findAnimeByIdAndFetchAll(Integer id) {
+        return animeRepository.findById(id)
+            .orElseThrow(() -> new AnimeNotFound("Anime was not found in the database, anime id: " + id));
     }
 
 }
