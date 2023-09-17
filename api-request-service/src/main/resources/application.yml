@@ -1,0 +1,26 @@
+api:
+    url: ${anime-api-url}
+feign:
+    client:
+        config:
+            default:
+                loggerLevel: full
+server:
+    port: ${bootstrap-port}
+spring:
+    kafka:
+        bootstrap-servers: ${kafka-server}
+        consumer:
+            group-id: ${consumer-group-id}
+            properties:
+                spring:
+                    json:
+                        trusted:
+                            packages: '*'
+        topic:
+            name:
+                consume: ${consume-topic}
+                produce: ${produce-topic}
+    messages:
+        basename: messages
+        encoding: UTF-8
